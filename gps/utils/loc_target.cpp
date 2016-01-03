@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <hardware/gps.h>
+#include "hardware/gps.h"
 #include <cutils/properties.h>
 #include "loc_target.h"
 #include "loc_log.h"
@@ -53,6 +53,7 @@
 #define STR_SURF      "Surf"
 #define STR_MTP       "MTP"
 #define STR_APQ       "apq"
+#define STR_AUTO      "auto"
 #define IS_STR_END(c) ((c) == '\0' || (c) == '\n' || (c) == '\r')
 #define LENGTH(s) (sizeof(s) - 1)
 #define GPS_CHECK_NO_ERROR 0
@@ -142,6 +143,34 @@ static bool is_qca1530(void)
     return res;
 }
 
+/*The character array passed to this function should have length
+  of atleast PROPERTY_VALUE_MAX*/
+void loc_get_target_baseband(char *baseband, int array_length)
+{
+    if(baseband && (array_length >= PROPERTY_VALUE_MAX)) {
+        property_get("ro.baseband", baseband, "");
+        LOC_LOGD("%s:%d]: Baseband: %s\n", __func__, __LINE__, baseband);
+    }
+    else {
+        LOC_LOGE("%s:%d]: NULL parameter or array length less than PROPERTY_VALUE_MAX\n",
+                 __func__, __LINE__);
+    }
+}
+
+/*The character array passed to this function should have length
+  of atleast PROPERTY_VALUE_MAX*/
+void loc_get_platform_name(char *platform_name, int array_length)
+{
+    if(platform_name && (array_length >= PROPERTY_VALUE_MAX)) {
+        property_get("ro.board.platform", platform_name, "");
+        LOC_LOGD("%s:%d]: Target name: %s\n", __func__, __LINE__, platform_name);
+    }
+    else {
+        LOC_LOGE("%s:%d]: Null parameter or array length less than PROPERTY_VALUE_MAX\n",
+                 __func__, __LINE__);
+    }
+}
+
 unsigned int loc_get_target(void)
 {
     if (gTarget != (unsigned int)-1)
@@ -164,7 +193,8 @@ unsigned int loc_get_target(void)
         goto detected;
     }
 
-    property_get("ro.baseband", baseband, "");
+    loc_get_target_baseband(baseband, sizeof(baseband));
+
     if (!access(hw_platform, F_OK)) {
         read_a_line(hw_platform, rd_hw_platform, LINE_LEN);
     } else {
@@ -174,6 +204,12 @@ unsigned int loc_get_target(void)
         read_a_line(id, rd_id, LINE_LEN);
     } else {
         read_a_line(id_dep, rd_id, LINE_LEN);
+    }
+
+    if( !memcmp(baseband, STR_AUTO, LENGTH(STR_AUTO)) )
+    {
+          gTarget = TARGET_AUTO;
+          goto detected;
     }
 
     if( !memcmp(baseband, STR_APQ, LENGTH(STR_APQ)) ){

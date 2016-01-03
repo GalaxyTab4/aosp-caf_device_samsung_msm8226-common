@@ -30,7 +30,7 @@
 #define LOC_API_ENG_ADAPTER_H
 
 #include <ctype.h>
-#include <hardware/gps.h>
+#include "hardware/gps.h"
 #include <loc.h>
 #include <loc_eng_log.h>
 #include <log_util.h>
@@ -76,8 +76,8 @@ class LocEngAdapter : public LocAdapterBase {
     bool mNavigating;
 
 public:
-    bool mAgpsEnabled;
-    bool mCPIEnabled;
+    bool mSupportsAgpsRequests;
+    bool mSupportsPositionInjection;
 
     LocEngAdapter(LOC_API_ADAPTER_EVENT_MASK_T mask,
                   void* owner,ContextBase* context,
@@ -91,8 +91,12 @@ public:
     inline LocInternalAdapter* getInternalAdapter() { return mInternalAdapter; }
     inline UlpProxyBase* getUlpProxy() { return mUlp; }
     inline void* getOwner() { return mOwner; }
-    inline bool hasAgpsExt() { return mContext->hasAgpsExt(); }
-    inline bool hasCPIExt() { return mContext->hasCPIExt(); }
+    inline bool hasAgpsExtendedCapabilities() {
+        return mContext->hasAgpsExtendedCapabilities();
+    }
+    inline bool hasCPIExtendedCapabilities() {
+        return mContext->hasCPIExtendedCapabilities();
+    }
     inline const MsgTask* getMsgTask() { return mMsgTask; }
 
     inline enum loc_api_adapter_err
@@ -141,7 +145,7 @@ public:
         return mLocApi->requestXtraServer();
     }
     inline enum loc_api_adapter_err
-        atlOpenStatus(int handle, int is_succ, char* apn, ApnIpType bearer, AGpsType agpsType)
+        atlOpenStatus(int handle, int is_succ, char* apn, AGpsBearerType bearer, AGpsType agpsType)
     {
         return mLocApi->atlOpenStatus(handle, is_succ, apn, bearer, agpsType);
     }
@@ -185,9 +189,9 @@ public:
         return mLocApi->setLPPConfig(profile);
     }
     inline enum loc_api_adapter_err
-        setSensorControlConfig(int sensorUsage)
+        setSensorControlConfig(int sensorUsage, int sensorProvider)
     {
-        return mLocApi->setSensorControlConfig(sensorUsage);
+        return mLocApi->setSensorControlConfig(sensorUsage, sensorProvider);
     }
     inline enum loc_api_adapter_err
         setSensorProperties(bool gyroBiasVarianceRandomWalk_valid, float gyroBiasVarianceRandomWalk,
@@ -256,6 +260,8 @@ public:
     virtual void reportSv(GpsSvStatus &svStatus,
                           GpsLocationExtended &locationExtended,
                           void* svExt);
+    virtual void reportSvMeasurement(GnssSvMeasurementSet &svMeasurementSet);
+    virtual void reportSvPolynomial(GnssSvPolynomial &svPolynomial);
     virtual void reportStatus(GpsStatusValue status);
     virtual void reportNmea(const char* nmea, int length);
     virtual bool reportXtraServer(const char* url1, const char* url2,

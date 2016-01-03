@@ -104,7 +104,7 @@
 #define AID_RFS           3012  /* Remote Filesystem for peripheral processors */
 #define AID_RFS_SHARED    3013  /* Shared files for Remote Filesystem for peripheral processors  */
 
-/* Motorola IDs */
+/* samsung IDs */
 #define AID_MOT_ACCY      9000  /* access to accessory */
 #define AID_MOT_PWRIC     9001  /* power IC */
 #define AID_MOT_USB       9002  /* mot usb */
@@ -125,7 +125,7 @@
 #define AID_POWER         9017 /* power management */
 #define AID_ITSON         9018  /* itson permission  */
 #define AID_MOT_DTV       9019 /* dtv */
-/* Motorola IDs */
+/* samsung IDs */
 
 #define AID_EVERYBODY     9997  /* shared between all apps in the same profile */
 #define AID_MISC          9998  /* access to misc storage */
@@ -216,7 +216,7 @@ static const struct android_id_info android_ids[] = {
 
     { "rfs",           AID_RFS, },
     { "rfs_shared",    AID_RFS_SHARED, },
-    /* Motorola IDs */
+    /* samsung IDs */
     { "mot_accy",      AID_MOT_ACCY, },
     { "mot_pwric",     AID_MOT_PWRIC, },
     { "mot_usb",       AID_MOT_USB, },
@@ -238,7 +238,7 @@ static const struct android_id_info android_ids[] = {
     { "power",         AID_POWER, },
     { "itson",         AID_ITSON, },
     { "mot_dtv",       AID_MOT_DTV, },
-    /* Motorola IDs */
+    /* samsung IDs */
     { "everybody",     AID_EVERYBODY, },
     { "misc",          AID_MISC, },
     { "nobody",        AID_NOBODY, },
